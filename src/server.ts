@@ -1,34 +1,41 @@
 import { createSchema, createYoga } from "graphql-yoga";
 import { createServer } from "node:http";
-import { users, workouts } from "./data.js"; // NOTE: the .js extension required by nodenext
+import { users, workouts, mutationUtils } from "./data.js";
 import { join } from "node:path";
 import { promises as fsPromises } from "node:fs";
 
-// 1. Define your Type Schema Contract
+// 1. Updated Type Schema Contract with mutations
 const typeDefs = /* GraphQL */ `
   type User {
     id: ID!
     name: String!
     email: String!
-    workouts: [Workout!]! # Relational field: A user has an array of workouts
+    workouts: [Workout!]!
   }
 
   type Workout {
     id: ID!
     title: String!
     duration: Int!
-    user: User! # Relational field: Every workout belongs to one User
+    user: User!
   }
 
   type Query {
     hello: String!
     allUsers: [User!]!
     allWorkouts: [Workout!]!
-    user(id: ID!): User # Fetch a specific user by their unique ID
+    user(id: ID!): User
+  }
+
+  # The entry points for modifying state data (C, U, D)
+  type Mutation {
+    createWorkout(userId: ID!, title: String!, duration: Int!): Workout!
+    updateWorkout(id: ID!, title: String!, duration: Int!): Workout
+    deleteWorkout(id: ID!): Workout
   }
 `;
 
-// 2. Implement the Resolver Functions
+// 2. Updated Resolver Functions
 const resolvers = {
   Query: {
     hello: () => "Hello from the GraphQL sandbox!",
@@ -39,16 +46,48 @@ const resolvers = {
     },
   },
 
-  // 3. Define Relationship Resolvers
+  Mutation: {
+    createWorkout: (
+      _parent: unknown,
+      args: { userId: string; title: string; duration: number },
+    ) => {
+      const newWorkout = {
+        id: `w-${Date.now()}`, // Simple dynamic string ID
+        userId: args.userId,
+        title: args.title,
+        duration: args.duration,
+      };
+      mutationUtils.addWorkout(newWorkout);
+      return newWorkout;
+    },
+
+    updateWorkout: (
+      _parent: unknown,
+      args: { id: string; title: string; duration: number },
+    ) => {
+      const updated = mutationUtils.updateWorkout(
+        args.id,
+        args.title,
+        args.duration,
+      );
+      if (!updated) throw new Error("Workout target not found");
+      return updated;
+    },
+
+    deleteWorkout: (_parent: unknown, args: { id: string }) => {
+      const deleted = mutationUtils.deleteWorkout(args.id);
+      if (!deleted) throw new Error("Workout target not found");
+      return deleted;
+    },
+  },
+
   User: {
-    // This function executes whenever a client query asks for "workouts" inside a User
     workouts: (parentUser: { id: string }) => {
       return workouts.filter((w) => w.userId === parentUser.id);
     },
   },
 
   Workout: {
-    // This function executes whenever a client query asks for the "user" inside a Workout
     user: (parentWorkout: { userId: string }) => {
       const foundUser = users.find((u) => u.id === parentWorkout.userId);
       if (!foundUser) {
@@ -63,14 +102,12 @@ const resolvers = {
 
 const schema = createSchema({ typeDefs, resolvers });
 
-// Initialize the GraphQL Yoga Engine with custom static file handling
 const yoga = createYoga({
   schema,
-  landingPage: false, // Disables the default landing page so we can render our own UI
+  landingPage: false,
 });
 
 const server = createServer(async (req, res) => {
-  // If the user visits the root page http://localhost:4000/ serve the HTML file
   if (req.url === "/" || req.url === "/index.html") {
     try {
       const indexPath = join(process.cwd(), "public", "index.html");
@@ -84,8 +121,6 @@ const server = createServer(async (req, res) => {
       return;
     }
   }
-
-  // Otherwise, hand the request over to the standard GraphQL Yoga execution layer
   await yoga(req, res);
 });
 

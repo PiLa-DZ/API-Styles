@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>GraphQL Client Sandbox</title>
+    <title>GraphQL CRUD Sandbox</title>
     <style>
       body {
         font-family: monospace;
@@ -19,14 +19,31 @@
         background: #8257e5;
         color: white;
         border: none;
-        padding: 10px 20px;
+        padding: 8px 16px;
         cursor: pointer;
         font-family: monospace;
         font-weight: bold;
         border-radius: 4px;
+        margin-right: 5px;
       }
       button:hover {
         background: #9466ff;
+      }
+      button.delete-btn {
+        background: #e04848;
+      }
+      button.delete-btn:hover {
+        background: #ff5c5c;
+      }
+      input,
+      select {
+        background: #202024;
+        border: 1px solid #29292e;
+        color: white;
+        padding: 8px;
+        border-radius: 4px;
+        font-family: monospace;
+        margin-right: 10px;
       }
       pre {
         background: #202024;
@@ -35,6 +52,14 @@
         border: 1px solid #29292e;
         overflow-x: auto;
         color: #a8a8b3;
+        max-height: 200px;
+      }
+      .form-container {
+        background: #202024;
+        padding: 20px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        border: 1px solid #29292e;
       }
       .workout-card {
         background: #202024;
@@ -42,78 +67,163 @@
         padding: 15px;
         margin: 15px 0;
         border-radius: 0 6px 6px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
     </style>
   </head>
   <body>
-    <h1>GraphQL Native Client Sandbox</h1>
-    <p>Triggering dynamic data streams without REST endpoints.</p>
+    <h1>GraphQL Native CRUD Sandbox</h1>
 
-    <button id="fetch-btn">Execute Fetch Query</button>
+    <div class="form-container">
+      <h3>🏋️‍♂️ Log a New Workout (Create)</h3>
+      <select id="user-select">
+        <option value="u-1">Nabil</option>
+        <option value="u-2">Alex</option>
+      </select>
+      <input
+        type="text"
+        id="workout-title"
+        placeholder="Workout Title (e.g. Bench Press)"
+        size="30"
+      />
+      <input
+        type="number"
+        id="workout-duration"
+        placeholder="Mins"
+        style="width: 60px"
+      />
+      <button id="create-btn">Add Log</button>
+    </div>
 
-    <h3>Raw JSON Response from Server:</h3>
-    <pre id="raw-output">Click the button to fire network packet...</pre>
+    <button id="fetch-btn">🔄 Refresh Workout List (Read)</button>
 
-    <h3>Rendered UI Elements:</h3>
+    <h3>Raw Payload Stream:</h3>
+    <pre id="raw-output">Execute an action to capture network context...</pre>
+
+    <h3>Active Workouts:</h3>
     <div id="ui-output"></div>
 
     <script>
+      const rawOutput = document.getElementById("raw-output");
+      const uiOutput = document.getElementById("ui-output");
+
+      // Central HTTP Post Channel helper
+      async function fireGraphQL(operationsString) {
+        const response = await fetch("/graphql", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: operationsString }),
+        });
+        const result = await response.json();
+        rawOutput.textContent = JSON.stringify(result, null, 2);
+        return result;
+      }
+
+      // READ ACTION
+      async function loadWorkouts() {
+        uiOutput.innerHTML = "Fetching...";
+        const query = `
+        query GetWorkouts {
+          allWorkouts {
+            id
+            title
+            duration
+            user { name }
+          }
+        }
+      `;
+        const result = await fireGraphQL(query);
+        const workouts = result.data.allWorkouts;
+
+        uiOutput.innerHTML = "";
+        workouts.forEach((w) => {
+          const card = document.createElement("div");
+          card.className = "workout-card";
+          card.innerHTML = `
+          <div>
+            <strong>🏋️‍♂️ ${w.title}</strong><br>
+            <span>⏱️ ${w.duration} minutes</span> | 
+            <span style="color: #8257e5;">👤 ${w.user.name}</span>
+          </div>
+          <div>
+            <button onclick="updateWorkoutPrompt('${w.id}', '${w.title}', ${w.duration})">📝 Edit</button>
+            <button class="delete-btn" onclick="deleteWorkoutAction('${w.id}')">❌ Delete</button>
+          </div>
+        `;
+          uiOutput.appendChild(card);
+        });
+      }
+
+      // CREATE ACTION
+      document
+        .getElementById("create-btn")
+        .addEventListener("click", async () => {
+          const userId = document.getElementById("user-select").value;
+          const title = document.getElementById("workout-title").value;
+          const duration = parseInt(
+            document.getElementById("workout-duration").value,
+          );
+
+          if (!title || !duration) return alert("Fill in title and duration!");
+
+          const mutation = `
+        mutation CreateNew {
+          createWorkout(userId: "${userId}", title: "${title}", duration: ${duration}) {
+            id
+            title
+          }
+        }
+      `;
+          await fireGraphQL(mutation);
+          loadWorkouts(); // Reload the UI layout state
+        });
+
+      // UPDATE ACTION
+      window.updateWorkoutPrompt = async (
+        id,
+        currentTitle,
+        currentDuration,
+      ) => {
+        const newTitle = prompt("Update Title:", currentTitle);
+        const newDuration = prompt("Update Duration (mins):", currentDuration);
+        if (!newTitle || !newDuration) return;
+
+        const mutation = `
+        mutation ModifyExisting {
+          updateWorkout(id: "${id}", title: "${newTitle}", duration: ${parseInt(newDuration)}) {
+            id
+            title
+            duration
+          }
+        }
+      `;
+        await fireGraphQL(mutation);
+        loadWorkouts();
+      };
+
+      // DELETE ACTION
+      window.deleteWorkoutAction = async (id) => {
+        if (!confirm("Are you sure you want to drop this log?")) return;
+
+        const mutation = `
+        mutation DropLog {
+          deleteWorkout(id: "${id}") {
+            id
+          }
+        }
+      `;
+        await fireGraphQL(mutation);
+        loadWorkouts();
+      };
+
       document
         .getElementById("fetch-btn")
-        .addEventListener("click", async () => {
-          const rawOutput = document.getElementById("raw-output");
-          const uiOutput = document.getElementById("ui-output");
+        .addEventListener("click", loadWorkouts);
 
-          rawOutput.textContent =
-            "Streaming request transaction over the wire...";
-          uiOutput.innerHTML = "";
-
-          // 1. Define your exact GraphQL query string right here
-          const graphqlQuery = `
-          query GetFrontendData {
-            allWorkouts {
-              title
-              duration
-              user {
-                name
-              }
-            }
-          }
-        `;
-
-          try {
-            // 2. Fire a standard HTTP POST request straight to the /graphql endpoint
-            const response = await fetch("/graphql", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              // 3. Wrap your query string inside a standard JSON payload key named "query"
-              body: JSON.stringify({ query: graphqlQuery }),
-            });
-
-            const result = await response.json();
-
-            // Output the raw JSON data to the screen
-            rawOutput.textContent = JSON.stringify(result, null, 2);
-
-            // 4. Iterate over the precise data schema returned
-            const workouts = result.data.allWorkouts;
-            workouts.forEach((workout) => {
-              const card = document.createElement("div");
-              card.className = "workout-card";
-              card.innerHTML = `
-            <strong>🏋️‍♂️ ${workout.title}</strong><br>
-            <span>⏱️ Duration: ${workout.duration} minutes</span><br>
-            <span style="color: #8257e5;">👤 Logged by: ${workout.user.name}</span>
-          `;
-              uiOutput.appendChild(card);
-            });
-          } catch (error) {
-            rawOutput.textContent =
-              "Network transaction failed: " + error.message;
-          }
-        });
+      // Initial data hydration on screen bootup
+      loadWorkouts();
     </script>
   </body>
 </html>
