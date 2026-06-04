@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>GraphQL Client Sandbox</title>
+    <style>
+      body {
+        font-family: monospace;
+        background: #121214;
+        color: #e1e1e6;
+        padding: 40px;
+      }
+      h1 {
+        color: #04d361;
+        border-bottom: 1px solid #29292e;
+        padding-bottom: 10px;
+      }
+      button {
+        background: #8257e5;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        font-family: monospace;
+        font-weight: bold;
+        border-radius: 4px;
+      }
+      button:hover {
+        background: #9466ff;
+      }
+      pre {
+        background: #202024;
+        padding: 20px;
+        border-radius: 6px;
+        border: 1px solid #29292e;
+        overflow-x: auto;
+        color: #a8a8b3;
+      }
+      .workout-card {
+        background: #202024;
+        border-left: 4px solid #8257e5;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 0 6px 6px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>GraphQL Native Client Sandbox</h1>
+    <p>Triggering dynamic data streams without REST endpoints.</p>
+
+    <button id="fetch-btn">Execute Fetch Query</button>
+
+    <h3>Raw JSON Response from Server:</h3>
+    <pre id="raw-output">Click the button to fire network packet...</pre>
+
+    <h3>Rendered UI Elements:</h3>
+    <div id="ui-output"></div>
+
+    <script>
+      document
+        .getElementById("fetch-btn")
+        .addEventListener("click", async () => {
+          const rawOutput = document.getElementById("raw-output");
+          const uiOutput = document.getElementById("ui-output");
+
+          rawOutput.textContent =
+            "Streaming request transaction over the wire...";
+          uiOutput.innerHTML = "";
+
+          // 1. Define your exact GraphQL query string right here
+          const graphqlQuery = `
+          query GetFrontendData {
+            allWorkouts {
+              title
+              duration
+              user {
+                name
+              }
+            }
+          }
+        `;
+
+          try {
+            // 2. Fire a standard HTTP POST request straight to the /graphql endpoint
+            const response = await fetch("/graphql", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              // 3. Wrap your query string inside a standard JSON payload key named "query"
+              body: JSON.stringify({ query: graphqlQuery }),
+            });
+
+            const result = await response.json();
+
+            // Output the raw JSON data to the screen
+            rawOutput.textContent = JSON.stringify(result, null, 2);
+
+            // 4. Iterate over the precise data schema returned
+            const workouts = result.data.allWorkouts;
+            workouts.forEach((workout) => {
+              const card = document.createElement("div");
+              card.className = "workout-card";
+              card.innerHTML = `
+            <strong>🏋️‍♂️ ${workout.title}</strong><br>
+            <span>⏱️ Duration: ${workout.duration} minutes</span><br>
+            <span style="color: #8257e5;">👤 Logged by: ${workout.user.name}</span>
+          `;
+              uiOutput.appendChild(card);
+            });
+          } catch (error) {
+            rawOutput.textContent =
+              "Network transaction failed: " + error.message;
+          }
+        });
+    </script>
+  </body>
+</html>
