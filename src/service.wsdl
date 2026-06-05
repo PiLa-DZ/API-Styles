@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="WorkoutSoapService"
+             targetNamespace="http://www.examples.com/wsdl/WorkoutSoapService"
+             xmlns="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns:tns="http://www.examples.com/wsdl/WorkoutSoapService"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+    <types>
+        <xsd:schema targetNamespace="http://www.examples.com/wsdl/WorkoutSoapService">
+            <xsd:element name="GetWorkoutListRequest">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="userId" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="WorkoutItem">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="id" type="xsd:string"/>
+                        <xsd:element name="title" type="xsd:string"/>
+                        <xsd:element name="duration" type="xsd:int"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="GetWorkoutListResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="workouts" type="tns:WorkoutItem" minOccurs="0" maxOccurs="unbounded"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:schema>
+    </types>
+
+    <message name="GetWorkoutListRequestMessage">
+        <part element="tns:GetWorkoutListRequest" name="parameters"/>
+    </message>
+    <message name="GetWorkoutListResponseMessage">
+        <part element="tns:GetWorkoutListResponse" name="parameters"/>
+    </message>
+
+    <portType name="WorkoutPortType">
+        <operation name="GetWorkoutList">
+            <input message="tns:GetWorkoutListRequestMessage"/>
+            <output message="tns:GetWorkoutListResponseMessage"/>
+        </operation>
+    </portType>
+
+    <binding name="WorkoutSoapBinding" type="tns:WorkoutPortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="GetWorkoutList">
+            <soap:operation soapAction="GetWorkoutList"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+    </binding>
+
+    <service name="WorkoutSoapService">
+        <documentation>Our Armored Train SOAP backend sandbox</documentation>
+        <port binding="tns:WorkoutSoapBinding" name="WorkoutPort">
+            <soap:address location="http://localhost:4000/soap"/>
+        </port>
+    </service>
+</definitions>

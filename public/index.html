@@ -2,8 +2,121 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title></title>
-    <style></style>
+    <title>SOAP Client Sandbox</title>
+    <style>
+      body {
+        font-family: monospace;
+        background: #121214;
+        color: #e1e1e6;
+        padding: 40px;
+      }
+      h1 {
+        color: #f1c40f;
+        border-bottom: 1px solid #29292e;
+        padding-bottom: 10px;
+      }
+      button {
+        background: #d35400;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        font-family: monospace;
+        font-weight: bold;
+        border-radius: 4px;
+      }
+      button:hover {
+        background: #e67e22;
+      }
+      pre {
+        background: #202024;
+        padding: 20px;
+        border-radius: 6px;
+        border: 1px solid #29292e;
+        overflow-x: auto;
+        color: #a8a8b3;
+        font-size: 13px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-top: 20px;
+      }
+      .panel {
+        background: #1a1a1e;
+        padding: 15px;
+        border-radius: 6px;
+        border: 1px solid #29292e;
+      }
+      h3 {
+        margin-top: 0;
+        color: #a8a8b3;
+      }
+    </style>
   </head>
-  <body></body>
+  <body>
+    <h1>SOAP Client Sandbox (The Armored Train)</h1>
+    <p>Manually constructing XML Envelopes to query our typed ports.</p>
+
+    <button id="soap-fetch-btn">Execute SOAP Action (User: Nabil)</button>
+
+    <div class="grid">
+      <div class="panel">
+        <h3>📤 Raw XML Request Sent (The Envelope):</h3>
+        <pre id="xml-request-output">
+Click the button to generate envelope...</pre
+        >
+      </div>
+      <br />
+      <div class="panel">
+        <h3>📥 Raw XML Response Received:</h3>
+        <pre id="xml-response-output">
+Awaiting server packet transaction...</pre
+        >
+      </div>
+    </div>
+
+    <script>
+      document
+        .getElementById("soap-fetch-btn")
+        .addEventListener("click", async () => {
+          const reqOutput = document.getElementById("xml-request-output");
+          const resOutput = document.getElementById("xml-response-output");
+
+          // 1. Construct the complete, strict SOAP XML Envelope manually as a text string
+          const soapEnvelope = `<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="http://www.examples.com/wsdl/WorkoutSoapService">
+  <soap:Body>
+    <tns:GetWorkoutListRequest>
+      <userId>u-1</userId>
+    </tns:GetWorkoutListRequest>
+  </soap:Body>
+</soap:Envelope>`;
+
+          reqOutput.textContent = soapEnvelope;
+          resOutput.textContent = "Transporting packet across HTTP network...";
+
+          try {
+            // 2. SOAP explicitly dictates a POST request containing custom Action headers
+            const response = await fetch("/soap", {
+              method: "POST",
+              headers: {
+                "Content-Type": "text/xml; charset=utf-8",
+                SOAPAction: "GetWorkoutList", // Tells the port operation which method to invoke
+              },
+              body: soapEnvelope,
+            });
+
+            const rawXmlText = await response.text();
+
+            // Output the raw returned XML string onto the screen dashboard
+            resOutput.textContent = rawXmlText;
+          } catch (error) {
+            resOutput.textContent =
+              "Network transaction failed: " + error.message;
+          }
+        });
+    </script>
+  </body>
 </html>

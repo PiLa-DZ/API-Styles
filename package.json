@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "tsx watch ./src/server.ts"
+    "dev": "tsx watch ./src/server.ts",
+    "check": "tsc --noEmit"
   },
   "repository": {
     "type": "git",
@@ -23,5 +24,7 @@
     "tsx": "^4.22.4",
     "typescript": "^6.0.3"
   },
-  "dependencies": {}
+  "dependencies": {
+    "soap": "^1.9.3"
+  }
 }
