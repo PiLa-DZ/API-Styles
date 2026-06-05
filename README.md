@@ -7,3 +7,13 @@ npx tsx watch ./src/Lesson-02/service.ts
 # 2. Run your client listener script in your client pane:
 npx tsx ./src/Lesson-02/client.ts
 ```
+
+---
+
+## Summary
+
+- Protocol Buffers `fileName.proto`
+  - syntax `proto3`
+  - package `packageName`
+  - message `string, int32, repeated name`
+  - service `rpc serviceName (inputs) returns (outputs)`

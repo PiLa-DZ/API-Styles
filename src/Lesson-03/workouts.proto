@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package hiPkg;
+
+message reqMsg {
+  string name = 1;
+}
+
+message resMsg {
+  string msg = 1;
+}
+
+service hiService {
+  rpc sayHi (reqMsg) returns (resMsg);
+}
