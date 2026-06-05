@@ -3,7 +3,7 @@ import * as protoLoader from "@grpc/proto-loader";
 import { join } from "node:path";
 
 // 1. The client must load the exact same schema blueprint file to understand the binary mapping
-const PROTO_PATH = join(process.cwd(), "src", "workouts.proto");
+const PROTO_PATH = join(process.cwd(), "src/Lesson-01", "workouts.proto");
 
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
   keepCase: true,

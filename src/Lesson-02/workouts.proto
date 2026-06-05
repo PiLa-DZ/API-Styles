@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package workouts;
+
+message GetWorkoutListRequest {
+  string user_id = 1;
+}
+
+message WorkoutItem {
+  string id = 1;
+  string title = 2;
+  int32 duration = 3;
+}
+
+service WorkoutService {
+  // Lesson 1 (Unary RPC - Single Request, Single Response)
+  rpc GetWorkoutList (GetWorkoutListRequest) returns (WorkoutItemCollection);
+
+  // LESSON 2: Server Streaming RPC (Single Request, Stream of individual Responses)
+  rpc StreamWorkouts (GetWorkoutListRequest) returns (stream WorkoutItem);
+}
+
+// Simple wrapper container message for Lesson 1 compatibility
+message WorkoutItemCollection {
+  repeated WorkoutItem workouts = 1;
+}

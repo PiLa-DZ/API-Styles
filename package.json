@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "check": "tsc --noEmit",
     "dev:server": "tsx watch ./src/service.ts",
     "dev:client": "tsx ./src/client.ts"
   },

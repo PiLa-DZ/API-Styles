@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { workouts } from "./data.js"; // Ensure this file exists with your mock arrays
 
 // 1. Load the proto file path dynamically
-const PROTO_PATH = join(process.cwd(), "src", "workouts.proto");
+const PROTO_PATH = join(process.cwd(), "src/Lesson-01", "workouts.proto");
 
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
   keepCase: true,
