@@ -1,0 +1,25 @@
+// Protocol Buffers
+
+syntax = "proto3";
+
+package workouts;
+
+// 1. The structural data schemas (Messages)
+message GetWorkoutListRequest {
+  string user_id = 1; // The number indicates the binary field location index tag
+}
+
+message WorkoutItem {
+  string id = 1;
+  string title = 2;
+  int32 duration = 3; // 32-bit integer type
+}
+
+message GetWorkoutListResponse {
+  repeated WorkoutItem workouts = 1; // "repeated" means an Array/List in protobuf
+}
+
+// 2. The Service definition interface (The RPC functions available to call)
+service WorkoutService {
+  rpc GetWorkoutList (GetWorkoutListRequest) returns (GetWorkoutListResponse);
+}
