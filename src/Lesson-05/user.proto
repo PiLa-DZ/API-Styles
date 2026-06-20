@@ -1,0 +1,18 @@
+syntax = "proto3";
+package UserPackage;
+
+message req {
+  string name = 1;
+  int32 age = 2;
+}
+
+message res {
+  string msg = 1;
+}
+
+message HealthRequest {}
+
+service UserService {
+  rpc Health(HealthRequest) returns (res);
+  rpc CreateUser(req) returns (res);
+}
