@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "generate": "npx protoc --plugin=protoc-gen-ts_proto=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./src --ts_proto_opt=outputServices=grpc-js,esModuleInterop=true ./src/hello.proto",
     "check": "tsc --noEmit",
     "dev:server": "tsx watch ./src/service.ts",
     "dev:client": "tsx ./src/client.ts"
@@ -22,6 +23,7 @@
   "homepage": "https://github.com/PiLa-DZ/API-Styles#readme",
   "devDependencies": {
     "@types/node": "^25.9.1",
+    "ts-proto": "^2.11.8",
     "tsx": "^4.22.4",
     "typescript": "^6.0.3"
   },
