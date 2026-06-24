@@ -27,7 +27,7 @@
 
 ## Data & Streaming
 
-- [ ] **Protobuf Data Types Reference**:
+- [x] **Protobuf Data Types Reference**:
       _Learn how to handle arrays (`repeated`),
       key-value maps (`map<K,V>`),
       optional fields,
