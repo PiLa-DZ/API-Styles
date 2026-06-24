@@ -33,11 +33,11 @@
       optional fields,
       how massive numbers match across systems._
 
-- [ ] **Streaming Capabilities**:
+- [x] **Streaming Capabilities**:
       _Move past single request-response habits
       to handle real-time data flow pipelines._
 
-- [ ] **Server Streaming**:
+- [x] **Server Streaming**:
       _(Server pushes data chunks to client indefinitely
       over a single connection line—great
       for real-time notifications or monitoring data streams)._
