@@ -1,0 +1,13 @@
+syntax = "proto3";
+package UserPackage;
+
+// 1. Structure of an individual message packet
+message ChatMessage {
+  string sender = 1;
+  string message = 2;
+}
+
+service UserService {
+  // 2. Placing 'stream' on BOTH input and output activates full-duplex bidirectional streaming
+  rpc LiveCoachChat(stream ChatMessage) returns (stream ChatMessage);
+}

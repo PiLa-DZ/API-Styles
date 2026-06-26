@@ -1,0 +1,15 @@
+syntax = "proto3";
+package UserPackage;
+
+message WorkoutRequest {
+  string workoutId = 1;
+}
+
+message WorkoutResponse {
+  string title = 1;
+  int32 targetSets = 2;
+}
+
+service UserService {
+  rpc GetWorkoutDetails(WorkoutRequest) returns (WorkoutResponse);
+}

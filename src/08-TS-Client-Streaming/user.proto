@@ -1,0 +1,34 @@
+syntax = "proto3";
+package UserPackage;
+
+message UserRequest {
+  string firstName = 1;
+  string lastName = 2;
+  int32 age = 3;
+  repeated string hobbies = 4;
+  map<string, string> metadata = 5;
+  optional string middleName = 6;
+  int64 longServerId = 7;
+}
+
+message UserResponse {
+  string msg = 1;
+}
+
+message TargetUserRequest {
+  string firstName = 1;
+}
+
+// 1. Define a chunk message layout for tracking metric logs
+message WorkoutMetric {
+  string exerciseName = 1;
+  int32 weightUsed = 2;
+}
+
+service UserService {
+  rpc CreateUser(UserRequest) returns (UserResponse);
+  rpc StreamUserActivities(TargetUserRequest) returns (stream UserResponse);
+
+  // 2. The 'stream' keyword here tells gRPC that the client pushes a continuous stream
+  rpc RecordWorkoutSession(stream WorkoutMetric) returns (UserResponse);
+}

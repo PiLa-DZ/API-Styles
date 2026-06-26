@@ -42,26 +42,26 @@
       over a single connection line—great
       for real-time notifications or monitoring data streams)._
 
-- [ ] **Client Streaming**:
+- [x] **Client Streaming**:
       _(Client fires chunks of binary or text data continuously upstream
       to the server—perfect for uploading large files safely)._
 
-- [ ] **Bidirectional Streaming**:
+- [x] **Bidirectional Streaming**:
       _(Both systems write concurrently to an open pipe socket
       channel—ideal for low-latency live chat systems)._
 
 ## Production Plumbing & Security
 
-- [ ] **Production Plumbing**
+- [x] **Production Plumbing**
       _Bridge the gap between basic localhost experiments
       and secure microservice clusters._
 
-- [ ] **gRPC Metadata (Headers)**
+- [x] **gRPC Metadata (Headers)**
       _Pass authentication parameters,
       authentication tokens,
       trace context variables across services using gRPC context objects._
 
-- [ ] **Error Handling (Status Codes)**
+- [x] **Error Handling (Status Codes)**
       _Stop code crashes gracefully by returning standardized gRPC system
       error status codes (like `NOT_FOUND` or `UNAUTHENTICATED`)
       with helpful debug messages._

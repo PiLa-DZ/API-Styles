@@ -1,0 +1,15 @@
+syntax = "proto3";
+package UserPackage;
+
+message ProfileRequest {
+  string userId = 1;
+}
+
+message ProfileResponse {
+  string email = 1;
+  string currentPlan = 2;
+}
+
+service UserService {
+  rpc GetSecureProfile(ProfileRequest) returns (ProfileResponse);
+}
