@@ -1,0 +1,14 @@
+syntax = "proto3";
+package UserPackage;
+
+message LoggedRequest {
+  string payload = 1;
+}
+
+message LoggedResponse {
+  string result = 1;
+}
+
+service UserService {
+  rpc ExecuteTask(LoggedRequest) returns (LoggedResponse);
+}

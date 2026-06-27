@@ -66,7 +66,7 @@
       error status codes (like `NOT_FOUND` or `UNAUTHENTICATED`)
       with helpful debug messages._
 
-- [ ] **Interceptors (Middleware)**
+- [x] **Interceptors (Middleware)**
       _Write reusable global interceptor wrappers to log every request
       or validate JWT signatures before routing
       traffic down to individual service methods._

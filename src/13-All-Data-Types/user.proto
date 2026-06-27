@@ -1,0 +1,73 @@
+syntax = "proto3";
+package MasterPackage;
+
+// 1. Enum Definition
+enum AccountStatus {
+  STATUS_UNKNOWN = 0; // proto3 requires the first element to map to 0
+  STATUS_ACTIVE = 1;
+  STATUS_SUSPENDED = 2;
+  STATUS_BANNED = 3;
+}
+
+// 2. Child Message for nesting references
+message SubProfile {
+  string bio = 1;
+  string avatarUrl = 2;
+}
+
+// 3. The Master Payload encompassing all type families
+message ComprehensiveDataRequest {
+  // --- Text & Binary Types ---
+  string textString = 1;
+  bytes rawBinaryData = 2; // Maps to Uint8Array in TypeScript
+
+  // --- Boolean Type ---
+  bool isPremiumUser = 3;
+
+  // --- Floating-Point Types ---
+  float singlePrecisionFloat = 4; // 32-bit floating point
+  double doublePrecisionFloat = 5; // 64-bit floating point
+
+  // --- Standard Signed Integer Types (Variable-length encoding) ---
+  int32 standardInt32 = 6;
+  int64 standardInt64 = 7; // Maps to Long or string/number depending on compiler
+
+  // --- Unsigned Integer Types (Variable-length encoding) ---
+  uint32 unsignedInt32 = 8;
+  uint64 unsignedInt64 = 9;
+
+  // --- Signed Integers with Efficient Negative Encoding (ZigZag encoding) ---
+  sint32 signedZigZagInt32 = 10;
+  sint64 signedZigZagInt64 = 11;
+
+  // --- Fixed-Length Integers (Always takes 4 or 8 bytes respectively) ---
+  fixed32 fixedLengthInt32 = 12;
+  fixed64 fixedLengthInt64 = 13;
+  sfixed32 signedFixedLengthInt32 = 14;
+  sfixed64 signedFixedLengthInt64 = 15;
+
+  // --- Complex Collection Fields ---
+  repeated string tagList = 16;                     // Array/List type
+  map<string, string> configurationMap = 17;        // Key-Value Dictionary map
+
+  // --- Structuring & References ---
+  AccountStatus currentStatus = 18;                 // Enum value link
+  SubProfile nestedProfile = 19;                    // Embedded Sub-Message Object
+
+  // --- Explicit Modifiers & Polymorphism ---
+  optional string conditionalNickname = 20;         // Nullable variable field
+
+  oneof identityVerification {                      // Mutual Exclusion (Only one can be set at a time)
+    string passportNumber = 21;
+    string nationalIdNumber = 22;
+  }
+}
+
+message MasterResponse {
+  bool processingSuccess = 1;
+  string summaryLog = 2;
+}
+
+service MasterService {
+  rpc SubmitComprehensiveData(ComprehensiveDataRequest) returns (MasterResponse);
+}
